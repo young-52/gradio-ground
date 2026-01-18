@@ -1,10 +1,20 @@
 "use client";
 
-// TODO: Implement VizPane
+import "@gradio/lite";
+import { useAppState } from "@/store/use-app-state";
+
 export default function VizPane() {
+  const { code } = useAppState();
   return (
     <div className="flex w-full h-full items-center justify-center">
-      <span>Hello, VizPane!</span>
+      <gradio-lite>
+        <gradio-requirements>
+          {/* TODO: Support external requirements */}
+        </gradio-requirements>
+        <gradio-file name="app.py" entrypoint>
+          {code}
+        </gradio-file>
+      </gradio-lite>
     </div>
   );
 }
