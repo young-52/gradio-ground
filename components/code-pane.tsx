@@ -4,6 +4,7 @@ import { python } from "@codemirror/lang-python";
 import { Prec, StateEffect, StateField } from "@codemirror/state";
 import { Decoration, type DecorationSet, EditorView, keymap } from "@codemirror/view";
 import CodeMirror, { type ReactCodeMirrorRef } from "@uiw/react-codemirror";
+import { indentUnit } from "@codemirror/language";
 import { PlayIcon } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
 import { useAppState } from "@/store/use-app-state";
@@ -104,7 +105,13 @@ export default function CodePane() {
   );
 
   const extensions = useMemo(
-    () => [keymapExtension, python(), highlightField, highlightTheme],
+    () => [
+      keymapExtension,
+      python(),
+      indentUnit.of("    "),
+      highlightField,
+      highlightTheme,
+    ],
     [keymapExtension],
   );
 
@@ -117,6 +124,7 @@ export default function CodePane() {
         value={code}
         height="100%"
         extensions={extensions}
+        indentWithTab={true}
         onChange={(value) => setCode(value)}
         className="h-full text-base font-mono"
       />
