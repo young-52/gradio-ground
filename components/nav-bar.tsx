@@ -36,8 +36,9 @@ export default function NavBar() {
                 alt="gradio"
                 width={64}
                 height={32}
-                priority
+                preload={true}
                 style={{ width: "auto" }}
+                className="dark:invert"
               />
               <span className="font-sans font-light text-md relative -top-[1px]">
                 ground

@@ -1,8 +1,8 @@
 "use client";
 
 import { python } from "@codemirror/lang-python";
-import { Prec, StateEffect, StateField } from "@codemirror/state";
-import { Decoration, type DecorationSet, EditorView, keymap } from "@codemirror/view";
+import { Prec } from "@codemirror/state";
+import { EditorView, keymap } from "@codemirror/view";
 import CodeMirror, { type ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { indentUnit } from "@codemirror/language";
 import { PlayIcon } from "lucide-react";
@@ -10,83 +10,17 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useAppState } from "@/store/use-app-state";
 import { cn } from "@/lib/utils";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
-
-type SourceLoc = {
-  start_line: number;
-  start_col: number;
-  end_line: number;
-  end_col: number;
-};
-
-const setHighlight = StateEffect.define<SourceLoc | null>();
-const highlightField = StateField.define<DecorationSet>({
-  create() {
-    return Decoration.none;
-  },
-  update(decorations, tr) {
-    for (const effect of tr.effects) {
-      if (effect.is(setHighlight)) {
-        const loc = effect.value;
-        if (!loc) {
-          return Decoration.none;
-        }
-        try {
-          const doc = tr.state.doc;
-          const startLine = Math.min(loc.start_line, doc.lines);
-          const endLine = Math.min(loc.end_line, doc.lines);
-
-          const startLineInfo = doc.line(startLine);
-          const endLineInfo = doc.line(endLine);
-
-          const from = startLineInfo.from + loc.start_col;
-          const to = endLineInfo.from + loc.end_col;
-
-          const clampedFrom = Math.max(0, Math.min(from, doc.length));
-          const clampedTo = Math.max(clampedFrom, Math.min(to, doc.length));
-
-          if (clampedFrom === clampedTo) {
-            return Decoration.none;
-          }
-
-          const mark = Decoration.mark({ class: "cm-highlight-current" });
-          return Decoration.set([mark.range(clampedFrom, clampedTo)]);
-        } catch {
-          return Decoration.none;
-        }
-      }
-    }
-    return decorations;
-  },
-  provide: (f) => EditorView.decorations.from(f),
-});
-
-const highlightTheme = EditorView.baseTheme({
-  ".cm-highlight-current": {
-    backgroundColor: "rgba(254, 240, 138, 0.6)",
-    borderRadius: "2px",
-  },
-});
+import { useTheme } from "next-themes";
+import { githubLight, githubDark } from "@uiw/codemirror-theme-github";
 
 export default function CodePane() {
   const code = useAppState((s) => s.code);
   const setCode = useAppState((s) => s.setCode);
   const lastRunCode = useAppState((s) => s.lastRunCode);
   const run = useAppState((s) => s.run);
-  
-  const currentLoc = useAppState((s) => {
-    const { sourceLocs, currentStep } = s;
-    return sourceLocs[currentStep] || null;
-  });
+  const { resolvedTheme } = useTheme();
 
   const editorRef = useRef<ReactCodeMirrorRef | null>(null);
-
-  useEffect(() => {
-    if (editorRef.current?.view) {
-      editorRef.current.view.dispatch({
-        effects: setHighlight.of(currentLoc),
-      });
-    }
-  }, [currentLoc]);
 
   const keymapExtension = useMemo(
     () =>
@@ -104,15 +38,30 @@ export default function CodePane() {
     [run],
   );
 
+  const editorTheme = useMemo(() => {
+    return [
+      resolvedTheme === "dark" ? githubDark : githubLight,
+      EditorView.theme({
+        "&": {
+          backgroundColor: "transparent !important",
+          height: "100%",
+        },
+        ".cm-gutters": {
+          backgroundColor: "transparent !important",
+          border: "none",
+        },
+      }),
+    ];
+  }, [resolvedTheme]);
+
   const extensions = useMemo(
     () => [
       keymapExtension,
       python(),
       indentUnit.of("    "),
-      highlightField,
-      highlightTheme,
+      ...editorTheme,
     ],
-    [keymapExtension],
+    [keymapExtension, editorTheme],
   );
 
   const isDirty = code !== lastRunCode;
@@ -148,7 +97,7 @@ export default function CodePane() {
         <button
           type="button"
           onClick={run}
-          className="flex items-center gap-3 px-6 py-2.5 bg-orange-500 hover:bg-orange-600 active:scale-95 text-white rounded-full font-bold shadow-2xl shadow-orange-500/40 ring-4 ring-white transition-all whitespace-nowrap"
+          className="flex items-center gap-3 px-6 py-2.5 bg-orange-500 hover:bg-orange-600 active:scale-95 text-white rounded-full font-bold shadow-2xl shadow-orange-500/40 transition-all whitespace-nowrap"
         >
           <PlayIcon className="size-4 fill-current" />
           <div className="flex items-center gap-2">
