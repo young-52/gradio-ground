@@ -24,6 +24,7 @@ export default function NavBar() {
         <div className="flex gap-7">
           <Link href="/">
             <div className="h-10 flex items-center gap-0">
+              {/* Support the dark theme */}
               <Image
                 src="/gradio-text.svg"
                 alt="gradio"
