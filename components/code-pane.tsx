@@ -6,7 +6,7 @@ import { Decoration, type DecorationSet, EditorView, keymap } from "@codemirror/
 import CodeMirror, { type ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { indentUnit } from "@codemirror/language";
 import { PlayIcon } from "lucide-react";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAppState } from "@/store/use-app-state";
 import { cn } from "@/lib/utils";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
@@ -117,6 +117,13 @@ export default function CodePane() {
 
   const isDirty = code !== lastRunCode;
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isMac = mounted && typeof navigator !== "undefined" && navigator.userAgent.includes("Mac");
+
   return (
     <div className="h-full w-full relative group">
       <CodeMirror
@@ -148,7 +155,7 @@ export default function CodePane() {
             <span>업데이트하기</span>
             <KbdGroup>
             <Kbd className="text-white opacity-70 bg-white/20   border border-white/20">
-              {(navigator.userAgent.includes("Mac")) ? "⌘" : "Ctrl"}
+              {isMac ? "⌘" : "Ctrl"}
             </Kbd>
             <Kbd data-icon="inline-end" className="text-white opacity-70 bg-white/20 border border-white/20">
             ⏎

@@ -22,7 +22,7 @@ export default function NavBar() {
     () => false, // false on the server
   );
 
-  const cKey = (navigator.userAgent.includes("Mac")) ? "⌘" : "Ctrl+";
+  const cKey = mounted ? (navigator.userAgent.includes("Mac") ? "⌘" : "Ctrl+") : "";
 
   return (
     <div className="relative border-b-2">
