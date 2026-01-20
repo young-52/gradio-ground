@@ -1,7 +1,5 @@
 "use client";
 
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-
 import CodePane from "@/components/code-pane";
 import {
   ResizableHandle,
@@ -22,14 +20,6 @@ export default function Workspace() {
           <VizPane />
         </ResizablePanel>
       </ResizablePanelGroup>
-      <div className="flex border-2 mx-2 mb-2 bg-background p-4 shadow-sm">
-        <button type="button" className="px-1 -ml-2">
-          <ChevronLeftIcon className="size-4" />
-        </button>
-        <button type="button" className="px-1 mr-2">
-          <ChevronRightIcon className="size-4" />
-        </button>
-      </div>
     </div>
   );
 }

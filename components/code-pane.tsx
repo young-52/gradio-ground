@@ -4,8 +4,10 @@ import { python } from "@codemirror/lang-python";
 import { StateEffect, StateField } from "@codemirror/state";
 import { Decoration, type DecorationSet, EditorView } from "@codemirror/view";
 import CodeMirror, { type ReactCodeMirrorRef } from "@uiw/react-codemirror";
+import { PlayIcon } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
 import { useAppState } from "@/store/use-app-state";
+import { cn } from "@/lib/utils";
 
 type SourceLoc = {
   start_line: number;
@@ -27,8 +29,6 @@ const highlightField = StateField.define<DecorationSet>({
           return Decoration.none;
         }
         try {
-          // Convert line/col to absolute positions
-          // Lines are 1-indexed in Location.t, CodeMirror uses 1-indexed lines too
           const doc = tr.state.doc;
           const startLine = Math.min(loc.start_line, doc.lines);
           const endLine = Math.min(loc.end_line, doc.lines);
@@ -39,7 +39,6 @@ const highlightField = StateField.define<DecorationSet>({
           const from = startLineInfo.from + loc.start_col;
           const to = endLineInfo.from + loc.end_col;
 
-          // Clamp to valid range
           const clampedFrom = Math.max(0, Math.min(from, doc.length));
           const clampedTo = Math.max(clampedFrom, Math.min(to, doc.length));
 
@@ -66,11 +65,12 @@ const highlightTheme = EditorView.baseTheme({
   },
 });
 
-// Moved extensions inside component to ensure unique instances if needed
-
 export default function CodePane() {
   const code = useAppState((s) => s.code);
   const setCode = useAppState((s) => s.setCode);
+  const lastRunCode = useAppState((s) => s.lastRunCode);
+  const run = useAppState((s) => s.run);
+  
   const currentLoc = useAppState((s) => {
     const { sourceLocs, currentStep } = s;
     return sourceLocs[currentStep] || null;
@@ -78,7 +78,6 @@ export default function CodePane() {
 
   const editorRef = useRef<ReactCodeMirrorRef | null>(null);
 
-  // Effect to update highlight when location changes
   useEffect(() => {
     if (editorRef.current?.view) {
       editorRef.current.view.dispatch({
@@ -92,8 +91,10 @@ export default function CodePane() {
     [],
   );
 
+  const isDirty = code !== lastRunCode;
+
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full relative group">
       <CodeMirror
         ref={editorRef}
         value={code}
@@ -102,6 +103,25 @@ export default function CodePane() {
         onChange={(value) => setCode(value)}
         className="h-full text-base font-mono"
       />
+      
+      {/* Floating Run Button */}
+      <div 
+        className={cn(
+          "absolute bottom-6 left-1/2 -translate-x-1/2 z-10 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
+          isDirty 
+            ? "opacity-100 translate-y-0 scale-100" 
+            : "opacity-0 translate-y-10 scale-95 pointer-events-none"
+        )}
+      >
+        <button
+          type="button"
+          onClick={run}
+          className="flex items-center gap-2 px-6 py-2.5 bg-orange-500 hover:bg-orange-600 active:scale-95 text-white rounded-full font-bold shadow-2xl shadow-orange-500/40 ring-4 ring-white transition-all whitespace-nowrap"
+        >
+          <PlayIcon className="size-4 fill-current" />
+          업데이트하기
+        </button>
+      </div>
     </div>
   );
 }

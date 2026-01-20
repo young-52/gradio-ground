@@ -52,6 +52,8 @@ export const useAppState = createSelectors(
         code: sampleCode,
         currentStep: 0,
         sourceLocs: [] as SourceLoc[],
+        runCount: 0,
+        lastRunCode: sampleCode,
       },
       (set, get) => ({
         setCode: (code: string) => {
@@ -63,6 +65,12 @@ export const useAppState = createSelectors(
         getCurrentLoc: () => {
           const { sourceLocs, currentStep } = get();
           return sourceLocs[currentStep] || null;
+        },
+        run: () => {
+          set((s) => ({
+            runCount: s.runCount + 1,
+            lastRunCode: s.code,
+          }));
         },
       }),
     ),

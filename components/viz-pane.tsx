@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useAppState } from "@/store/use-app-state";
 
 export default function VizPane() {
-  const { code } = useAppState();
+  const { code, runCount } = useAppState();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export default function VizPane() {
   }
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full" key={runCount}>
       <gradio-lite>
         <gradio-requirements>
           {/* TODO: Support external requirements */}
