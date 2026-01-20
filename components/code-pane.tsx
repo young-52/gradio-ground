@@ -1,13 +1,14 @@
 "use client";
 
 import { python } from "@codemirror/lang-python";
-import { StateEffect, StateField } from "@codemirror/state";
-import { Decoration, type DecorationSet, EditorView } from "@codemirror/view";
+import { Prec, StateEffect, StateField } from "@codemirror/state";
+import { Decoration, type DecorationSet, EditorView, keymap } from "@codemirror/view";
 import CodeMirror, { type ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { PlayIcon } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
 import { useAppState } from "@/store/use-app-state";
 import { cn } from "@/lib/utils";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
 
 type SourceLoc = {
   start_line: number;
@@ -86,9 +87,25 @@ export default function CodePane() {
     }
   }, [currentLoc]);
 
+  const keymapExtension = useMemo(
+    () =>
+      Prec.high(
+        keymap.of([
+          {
+            key: "Mod-Enter",
+            run: () => {
+              run();
+              return true; // Prevents newline
+            },
+          },
+        ]),
+      ),
+    [run],
+  );
+
   const extensions = useMemo(
-    () => [python(), highlightField, highlightTheme],
-    [],
+    () => [keymapExtension, python(), highlightField, highlightTheme],
+    [keymapExtension],
   );
 
   const isDirty = code !== lastRunCode;
@@ -116,10 +133,20 @@ export default function CodePane() {
         <button
           type="button"
           onClick={run}
-          className="flex items-center gap-2 px-6 py-2.5 bg-orange-500 hover:bg-orange-600 active:scale-95 text-white rounded-full font-bold shadow-2xl shadow-orange-500/40 ring-4 ring-white transition-all whitespace-nowrap"
+          className="flex items-center gap-3 px-6 py-2.5 bg-orange-500 hover:bg-orange-600 active:scale-95 text-white rounded-full font-bold shadow-2xl shadow-orange-500/40 ring-4 ring-white transition-all whitespace-nowrap"
         >
           <PlayIcon className="size-4 fill-current" />
-          업데이트하기
+          <div className="flex items-center gap-2">
+            <span>업데이트하기</span>
+            <KbdGroup>
+            <Kbd className="text-white opacity-70 bg-white/20   border border-white/20">
+              {(navigator.userAgent.includes("Mac")) ? "⌘" : "Ctrl"}
+            </Kbd>
+            <Kbd data-icon="inline-end" className="text-white opacity-70 bg-white/20 border border-white/20">
+            ⏎
+            </Kbd>
+            </KbdGroup>
+          </div>
         </button>
       </div>
     </div>
