@@ -1,17 +1,17 @@
 "use client";
 
 import { python } from "@codemirror/lang-python";
+import { indentUnit } from "@codemirror/language";
 import { Prec } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
+import { githubDark, githubLight } from "@uiw/codemirror-theme-github";
 import CodeMirror, { type ReactCodeMirrorRef } from "@uiw/react-codemirror";
-import { indentUnit } from "@codemirror/language";
 import { PlayIcon } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useAppState } from "@/store/use-app-state";
-import { cn } from "@/lib/utils";
-import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { useTheme } from "next-themes";
-import { githubLight, githubDark } from "@uiw/codemirror-theme-github";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import { cn } from "@/lib/utils";
+import { useAppState } from "@/store/use-app-state";
 
 export default function CodePane() {
   const code = useAppState((s) => s.code);
