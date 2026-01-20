@@ -8,15 +8,21 @@ import {
   MenubarContent,
   MenubarItem,
   MenubarMenu,
+  MenubarShortcut,
   MenubarTrigger,
 } from "@/components/ui/menubar";
+import { useAppState } from "@/store/use-app-state";
 
 export default function NavBar() {
+  const run = useAppState((s) => s.run);
+
   const mounted = useSyncExternalStore(
     () => () => {}, // nothing to subscribe to
     () => true, // true on the client
     () => false, // false on the server
   );
+
+  const cKey = (navigator.userAgent.includes("Mac")) ? "⌘" : "Ctrl+";
 
   return (
     <div className="relative border-b-2">
@@ -43,7 +49,8 @@ export default function NavBar() {
                   파일
                 </MenubarTrigger>
                 <MenubarContent>
-                  <MenubarItem>준비 중...</MenubarItem>
+                <MenubarItem onClick={run}>실행 <MenubarShortcut>{cKey}⏎</MenubarShortcut></MenubarItem>
+                  <MenubarItem disabled>저장 <MenubarShortcut>{cKey}S</MenubarShortcut></MenubarItem>
                 </MenubarContent>
               </MenubarMenu>
               <MenubarMenu>
@@ -51,7 +58,7 @@ export default function NavBar() {
                   편집
                 </MenubarTrigger>
                 <MenubarContent>
-                  <MenubarItem>준비 중...</MenubarItem>
+                  <MenubarItem disabled>정리</MenubarItem>
                 </MenubarContent>
               </MenubarMenu>
             </Menubar>
