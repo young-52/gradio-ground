@@ -15,7 +15,9 @@ export default function VizPane() {
     return (
       <div className="w-full h-full">
         <div className="flex items-center justify-center">
-          <div className="text-muted-foreground animate-pulse">Loading preview...</div>
+          <div className="text-muted-foreground animate-pulse">
+            Loading preview...
+          </div>
         </div>
       </div>
     );

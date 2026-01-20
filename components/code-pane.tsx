@@ -55,12 +55,7 @@ export default function CodePane() {
   }, [resolvedTheme]);
 
   const extensions = useMemo(
-    () => [
-      keymapExtension,
-      python(),
-      indentUnit.of("    "),
-      ...editorTheme,
-    ],
+    () => [keymapExtension, python(), indentUnit.of("    "), ...editorTheme],
     [keymapExtension, editorTheme],
   );
 
@@ -71,7 +66,10 @@ export default function CodePane() {
     setMounted(true);
   }, []);
 
-  const isMac = mounted && typeof navigator !== "undefined" && navigator.userAgent.includes("Mac");
+  const isMac =
+    mounted &&
+    typeof navigator !== "undefined" &&
+    navigator.userAgent.includes("Mac");
 
   return (
     <div className="h-full w-full relative group">
@@ -84,14 +82,14 @@ export default function CodePane() {
         onChange={(value) => setCode(value)}
         className="h-full text-base font-mono"
       />
-      
+
       {/* Floating Run Button */}
-      <div 
+      <div
         className={cn(
           "absolute bottom-6 left-1/2 -translate-x-1/2 z-10 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
-          isDirty 
-            ? "opacity-100 translate-y-0 scale-100" 
-            : "opacity-0 translate-y-10 scale-95 pointer-events-none"
+          isDirty
+            ? "opacity-100 translate-y-0 scale-100"
+            : "opacity-0 translate-y-10 scale-95 pointer-events-none",
         )}
       >
         <button
@@ -103,12 +101,15 @@ export default function CodePane() {
           <div className="flex items-center gap-2">
             <span>업데이트하기</span>
             <KbdGroup>
-            <Kbd className="text-white opacity-70 bg-white/20   border border-white/20">
-              {isMac ? "⌘" : "Ctrl"}
-            </Kbd>
-            <Kbd data-icon="inline-end" className="text-white opacity-70 bg-white/20 border border-white/20">
-            ⏎
-            </Kbd>
+              <Kbd className="text-white opacity-70 bg-white/20   border border-white/20">
+                {isMac ? "⌘" : "Ctrl"}
+              </Kbd>
+              <Kbd
+                data-icon="inline-end"
+                className="text-white opacity-70 bg-white/20 border border-white/20"
+              >
+                ⏎
+              </Kbd>
             </KbdGroup>
           </div>
         </button>

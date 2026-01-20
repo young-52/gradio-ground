@@ -22,7 +22,11 @@ export default function NavBar() {
     () => false, // false on the server
   );
 
-  const cKey = mounted ? (navigator.userAgent.includes("Mac") ? "⌘" : "Ctrl+") : "";
+  const cKey = mounted
+    ? navigator.userAgent.includes("Mac")
+      ? "⌘"
+      : "Ctrl+"
+    : "";
 
   return (
     <div className="relative border-b-2">
@@ -52,8 +56,12 @@ export default function NavBar() {
                   파일
                 </MenubarTrigger>
                 <MenubarContent>
-                <MenubarItem onClick={run}>실행 <MenubarShortcut>{cKey}⏎</MenubarShortcut></MenubarItem>
-                  <MenubarItem disabled>저장 <MenubarShortcut>{cKey}S</MenubarShortcut></MenubarItem>
+                  <MenubarItem onClick={run}>
+                    실행 <MenubarShortcut>{cKey}⏎</MenubarShortcut>
+                  </MenubarItem>
+                  <MenubarItem disabled>
+                    저장 <MenubarShortcut>{cKey}S</MenubarShortcut>
+                  </MenubarItem>
                 </MenubarContent>
               </MenubarMenu>
               <MenubarMenu>
