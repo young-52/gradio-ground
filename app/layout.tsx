@@ -21,7 +21,7 @@ export default function RootLayout({
 }>) {
   // https://github.com/gradio-app/gradio/issues/12262#issuecomment-3586472658
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link
           rel="stylesheet"
