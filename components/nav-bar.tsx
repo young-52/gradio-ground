@@ -26,7 +26,7 @@ export default function NavBar() {
 
   return (
     <div className="relative border-b-2">
-      <div className="relative z-20 flex items-center justify-between px-3 py-2">
+      <div className="relative z-20 flex items-center justify-between px-6 py-2">
         <div className="flex gap-7">
           <Link href="/">
             <div className="h-10 flex items-center gap-0">
@@ -34,10 +34,12 @@ export default function NavBar() {
               <Image
                 src="/gradio-text.svg"
                 alt="gradio"
-                width={60}
-                height={60}
+                width={64}
+                height={32}
+                priority
+                style={{ width: "auto" }}
               />
-              <span className="font-mono font-light text-[19px] relative -top-[1px]">
+              <span className="font-sans font-light text-md relative -top-[1px]">
                 ground
               </span>
             </div>
