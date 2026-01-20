@@ -13,14 +13,16 @@ export default function VizPane() {
 
   if (!mounted) {
     return (
-      <div className="flex w-full h-full items-center justify-center">
-        <div className="text-muted-foreground animate-pulse">Loading preview...</div>
+      <div className="w-full h-full">
+        <div className="flex items-center justify-center">
+          <div className="text-muted-foreground animate-pulse">Loading preview...</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex w-full h-full items-center justify-center">
+    <div className="w-full h-full">
       <gradio-lite>
         <gradio-requirements>
           {/* TODO: Support external requirements */}
