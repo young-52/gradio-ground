@@ -57,7 +57,7 @@ export default function VizPane() {
 
   return (
     <div className="w-full h-full">
-      <gradio-lite ref={gradioRef}>
+      <gradio-lite ref={gradioRef} shared-worker>
         <gradio-requirements>
           {/* TODO: Support external requirements */}
         </gradio-requirements>
