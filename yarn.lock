@@ -473,11 +473,6 @@
   resolved "https://registry.yarnpkg.com/@floating-ui/utils/-/utils-0.2.10.tgz#a2a1e3812d14525f725d011a73eceb41fef5bc1c"
   integrity sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==
 
-"@gradio/lite@^5.45.0":
-  version "5.45.0"
-  resolved "https://registry.yarnpkg.com/@gradio/lite/-/lite-5.45.0.tgz#ec16e39ac0b1df8405242347a01d597c51499fe6"
-  integrity sha512-7ZkKvXxrHPa6c633WQjD4KM6IlDos9a+IFwLBhfoq7PTb3tKWarYcVr5OAEsOkzDob7hJiz2RoeubhQG9YCUDA==
-
 "@hono/node-server@^1.19.7":
   version "1.19.9"
   resolved "https://registry.yarnpkg.com/@hono/node-server/-/node-server-1.19.9.tgz#8f37119b1acf283fd3f6035f3d1356fdb97a09ac"
