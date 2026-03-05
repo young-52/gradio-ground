@@ -12,8 +12,16 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
-  // Intercept requests directed to the virtual local endpoint
-  if (url.hostname === "gradio.local") {
+  // Define paths that belong to the local Gradio server
+  const isGradioRoute =
+    url.pathname.startsWith("/_gradio_local/") ||
+    url.pathname === "/_gradio_local" ||
+    url.pathname.startsWith("/assets/") ||
+    url.pathname === "/theme.css" ||
+    url.pathname === "/info";
+
+  if (isGradioRoute) {
+    // Intercept and route to Pyodide
     event.respondWith(handleGradioRequest(event.request));
   }
 });
@@ -25,13 +33,21 @@ async function handleGradioRequest(request) {
   });
 
   if (clientsList.length === 0) {
+    console.error("[SW] No active window clients found to handle request");
     return new Response("No active window clients found to handle request", {
       status: 503,
     });
   }
 
-  // Pick the first client (in real apps, you might route by client id)
-  const client = clientsList[0];
+  // Find the Next.js host client (the top-level window, not the iframe)
+  let client = clientsList.find((c) => c.frameType === "top-level");
+  if (!client) {
+    client = clientsList[0];
+  }
+
+  console.log(
+    `[SW] Intercepting request to ${request.url}, routing to client: ${client.url}`,
+  );
 
   return new Promise((resolve) => {
     const messageChannel = new MessageChannel();
@@ -52,9 +68,13 @@ async function handleGradioRequest(request) {
       );
     };
 
+    // Re-write URL so Python ASGI app sees it as root (/)
+    let reqUrl = new URL(request.url);
+    reqUrl.pathname = reqUrl.pathname.replace(/^\/_gradio_local/, "") || "/";
+
     const requestData = {
       type: "GRADIO_FETCH",
-      url: request.url,
+      url: reqUrl.toString(),
       method: request.method,
       headers: Object.fromEntries(request.headers.entries()),
       body: null,

@@ -41,10 +41,13 @@ export default function VizPane() {
   useEffect(() => {
     let mounted = true;
     const run = async () => {
+      // Use the actual current state to avoid dependency loops
+      const currentStatus = useAppState.getState().pyodideStatus;
+      
       if (
         runCount === 0 ||
-        pyodideStatus === "loading" ||
-        pyodideStatus === "idle"
+        currentStatus === "loading" ||
+        currentStatus === "idle"
       )
         return;
 
@@ -54,11 +57,12 @@ export default function VizPane() {
 
       try {
         const client = getPyodideClient();
-        await client.runCode(code);
+        const currentCode = useAppState.getState().code;
+        await client.runCode(currentCode);
         if (mounted) {
           setPyodideStatus("ready");
           // Add a cache buster so iframe reloads
-          setIframeSrc(`https://gradio.local/?t=${Date.now()}`);
+          setIframeSrc(`/_gradio_local/?t=${Date.now()}`);
         }
       } catch (err: any) {
         if (mounted) {
@@ -72,19 +76,22 @@ export default function VizPane() {
     return () => {
       mounted = false;
     };
-  }, [runCount, code, pyodideStatus, setPyodideStatus, setPyodideError]); // Run only on runCount changes
+  }, [runCount, setPyodideStatus, setPyodideError]); // Run only on runCount changes
 
   // Forward Fetch Requests from Service Worker
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
       if (event.data?.type === "GRADIO_FETCH") {
+        console.log("[VizPane] Received GRADIO_FETCH for:", event.data.url);
         const client = getPyodideClient();
         const port = event.ports[0];
         try {
           // Send request down to worker
           const response = await client.forwardHttpRequest(event.data);
-          port.postMessage(response);
+          console.log("[VizPane] Got HTTP_RESPONSE for:", event.data.url, "Status:", response.status);
+          port.postMessage(response, response.body ? [response.body] : []);
         } catch (err: any) {
+          console.error("[VizPane] Error forwarding request:", err);
           port.postMessage({
             status: 500,
             body: `Error forwarding: ${String(err)}`,
@@ -92,11 +99,16 @@ export default function VizPane() {
         }
       }
     };
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, []);
 
-  if (pyodideStatus === "loading") {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.addEventListener("message", handleMessage as any);
+    }
+    return () => {
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.removeEventListener("message", handleMessage as any);
+      }
+    };
+  }, []);  if (pyodideStatus === "loading") {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center p-4">
         <div className="text-muted-foreground animate-pulse mb-2">

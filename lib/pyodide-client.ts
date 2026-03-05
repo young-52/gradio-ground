@@ -7,6 +7,9 @@ export class PyodideClient {
       resolve: (val: any) => void;
       reject: (err: any) => void;
       onProgress?: (msg: string) => void;
+      onHttpStart?: (payload: any) => void;
+      onHttpChunk?: (payload: any) => void;
+      onHttpEnd?: () => void;
     }
   >();
 
@@ -16,7 +19,7 @@ export class PyodideClient {
     });
 
     this.worker.addEventListener("message", (event) => {
-      console.log("[PyodideClient] Received message:", event.data);
+      // console.log("[PyodideClient] Received message:", event.data);
       const { type, msgId, payload, error } = event.data;
       const promise = this.pendingPromises.get(msgId);
 
@@ -28,6 +31,12 @@ export class PyodideClient {
           if (promise.onProgress) {
             promise.onProgress(payload);
           }
+        } else if (type === "HTTP_RESPONSE_START") {
+          promise.onHttpStart?.(payload);
+        } else if (type === "HTTP_RESPONSE_CHUNK") {
+          promise.onHttpChunk?.(payload);
+        } else if (type === "HTTP_RESPONSE_END") {
+          promise.onHttpEnd?.();
         } else {
           promise.resolve(payload);
           this.pendingPromises.delete(msgId);
@@ -61,7 +70,41 @@ export class PyodideClient {
   }
 
   public async forwardHttpRequest(requestData: any): Promise<any> {
-    return this.postMessageAsync("HTTP_REQUEST", requestData);
+    const msgId = ++this.messageIdCounter;
+    return new Promise((resolve, reject) => {
+      let streamController: ReadableStreamDefaultController | null = null;
+      let stream: ReadableStream | null = null;
+
+      this.pendingPromises.set(msgId, {
+        resolve: () => {}, // unused
+        reject,
+        onHttpStart: (payload) => {
+          stream = new ReadableStream({
+            start(controller) {
+              streamController = controller;
+            },
+          });
+          resolve({
+            status: payload.status,
+            headers: payload.headers,
+            body: stream,
+          });
+        },
+        onHttpChunk: (payload) => {
+          if (streamController) {
+            streamController.enqueue(payload.body);
+          }
+        },
+        onHttpEnd: () => {
+          if (streamController) {
+            streamController.close();
+          }
+          this.pendingPromises.delete(msgId);
+        },
+      });
+
+      this.worker.postMessage({ type: "HTTP_REQUEST", payload: requestData, msgId });
+    });
   }
 
   public terminate() {
