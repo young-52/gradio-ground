@@ -54,6 +54,14 @@ export const useAppState = createSelectors(
         sourceLocs: [] as SourceLoc[],
         runCount: 0,
         lastRunCode: sampleCode,
+        pyodideStatus: "idle" as
+          | "idle"
+          | "loading"
+          | "ready"
+          | "running"
+          | "error",
+        pyodideProgress: "Initializing..." as string,
+        pyodideError: null as string | null,
       },
       (set, get) => ({
         setCode: (code: string) => {
@@ -61,6 +69,17 @@ export const useAppState = createSelectors(
         },
         setCurrentStep: (step: number) => {
           set({ currentStep: step });
+        },
+        setPyodideStatus: (
+          status: "idle" | "loading" | "ready" | "running" | "error",
+        ) => {
+          set({ pyodideStatus: status });
+        },
+        setPyodideProgress: (progress: string) => {
+          set({ pyodideProgress: progress });
+        },
+        setPyodideError: (error: string | null) => {
+          set({ pyodideError: error });
         },
         getCurrentLoc: () => {
           const { sourceLocs, currentStep } = get();
