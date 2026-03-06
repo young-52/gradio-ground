@@ -20,16 +20,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // https://github.com/gradio-app/gradio/issues/12262#issuecomment-3586472658
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         <link
           rel="stylesheet"
-          href="https://gradio-lite-previews.s3.amazonaws.com/PINNED_HF_HUB/dist/lite.css"
+          href="https://gradio-lite-2026.s3.ap-southeast-2.amazonaws.com/lite.css"
         />
         <script
-          src="https://gradio-lite-previews.s3.amazonaws.com/PINNED_HF_HUB/dist/lite.js"
+          src="https://gradio-lite-2026.s3.ap-southeast-2.amazonaws.com/lite.js"
           type="module"
           crossOrigin="anonymous"
         />
